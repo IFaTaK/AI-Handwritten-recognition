@@ -18,7 +18,6 @@ while str_model not in models_list:
     print('which model do you want to see?')
     print(models)
     str_model = input()
-    print(str_model, models_list)
     if str_model in models_list:
         modelInfo(str_model)
         break

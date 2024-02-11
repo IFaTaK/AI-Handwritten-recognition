@@ -1,4 +1,5 @@
 import os
+import subprocess
 import keras
 import numpy as np
 import matplotlib.pyplot as plt
@@ -31,20 +32,32 @@ def trainModel(model):
     print("Model trained")
     model.evaluate(x_test, y_test)
 
-
-if os.path.exists('model/nn.model'):
-    print("Loading model...")
-    model = keras.models.load_model('model/nn.model')
-    print("Model loaded")  
-else:
-    print("Creating model: ", end="")
+print("Do you wannt to load or to create a new model? (Press Enter to load, type 'new' to create a new model) ")
+if input() == 'new':
+    name = input("Name of the model: ")
     model = createModel()
-    print("Done")
     trainModel(model)
-    print("Saving model...")
-    model.save('model/nn.model')
-    print("Model saved")
+    model.save('model/'+ name +'.model')
+else:
+    models = subprocess.check_output('ls model/ | grep .model', shell=True).decode('utf-8')
+    models = models.split('\n')
+    models.pop()
+    models_list = [model.split('.')[0] for model in models]
+    models = " ".join(models_list)
 
+    str_model = ".model"
+    while str_model not in models_list:
+        print('which model do you want to use?')
+        print(models)
+        str_model = input()
+        if str_model in models_list:
+            model = keras.models.load_model('model/' + str_model + '.model')
+            break
+        else:
+            if str_model == "leave":
+                exit()
+            print("Model not found")
+            continue
 
 number = 0
 while os.path.exists(f'handwritten/number{number}-00.png'):
