@@ -15,14 +15,21 @@ def loadingData():
     return x_train, y_train, x_test, y_test
 
 def createModel():
-    return keras.models.Sequential([
-        keras.layers.Flatten(input_shape=(28, 28)),
-        keras.layers.Dense(512, activation='relu'),
-        keras.layers.Dropout(0.2),
-        keras.layers.Dense(256, activation='relu'),
-        keras.layers.Dropout(0.2),
-        keras.layers.Dense(10, activation='softmax')
-    ])
+    print("Creating model...")
+    print("How many hidden layers do you want?")
+    hidden_layers = int(input())
+    nodes = []
+    for i in range(hidden_layers):
+        print(f"How many nodes do you want in hidden layer {i+1}?")
+        nodes.append(int(input()))
+    model = keras.models.Sequential()
+    model.add(keras.layers.Flatten(input_shape=(28, 28)))
+    for i in range(hidden_layers):
+        model.add(keras.layers.Dense(nodes[i], activation='relu'))
+        model.add(keras.layers.Dropout(0.2))
+    model.add(keras.layers.Dense(10, activation='softmax'))
+    nodes = [28*28] + nodes + [10]
+    return model, sum([nodes[i]*nodes[i+1] for i in range(len(nodes)-1)])
 
 def trainModel(model):
     x_train, y_train, x_test, y_test = loadingData()
@@ -34,9 +41,9 @@ def trainModel(model):
 
 print("Do you wannt to load or to create a new model? (Press Enter to load, type 'new' to create a new model) ")
 if input() == 'new':
-    name = input("Name of the model: ")
-    model = createModel()
+    model, size = createModel()
     trainModel(model)
+    name = input(f"Name of the model (size: {size}): ")
     model.save('model/'+ name +'.model')
 else:
     models = subprocess.check_output('ls model/ | grep .model', shell=True).decode('utf-8')
